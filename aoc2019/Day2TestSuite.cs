@@ -109,7 +109,7 @@ namespace aoc2019
             // Assert
             Assert.Equal(expected, actual);
 
-            DumpMemory("Day2_outputReal", Day2.Memory);
+            DumpMemory("Day2_output.2", Day2.Memory);
             TestOutputHelper.WriteLine($@"{noun} {verb} {actual}");
         }
     }
