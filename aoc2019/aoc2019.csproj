@@ -58,7 +58,6 @@
     <ItemGroup>
         <Compile Include="Day1.cs" />
         <Compile Include="Day1TestSuite.cs" />
-        <Compile Include="Day2.cs" />
         <Compile Include="Day2TestSuite.cs" />
         <Compile Include="Day3.cs" />
         <Compile Include="Day3TestSuite.cs" />
@@ -68,6 +67,8 @@
         <Compile Include="Day5TestSuite.cs" />
         <Compile Include="Day6.cs" />
         <Compile Include="Day6TestSuite.cs" />
+        <Compile Include="Day7TestSuite.cs" />
+        <Compile Include="Day7TestSuite2.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Utils\AssetManager.cs" />
         <Compile Include="Utils\Recurrence.cs" />
@@ -81,14 +82,11 @@
     <ItemGroup>
         <Content Include="Assets\Day1_input" />
         <Content Include="Assets\Day2_input" />
-        <Content Include="Assets\Day2_output" />
-        <Content Include="Assets\Day2_output.2" />
-        <Content Include="Assets\Day2_output.5" />
         <Content Include="Assets\Day3_input" />
         <Content Include="Assets\Day5_input" />
         <Content Include="Assets\Day5_output" />
-        <Content Include="Assets\Day5_output.2" />
         <Content Include="Assets\Day6_input" />
+        <Content Include="Assets\Day7_input" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

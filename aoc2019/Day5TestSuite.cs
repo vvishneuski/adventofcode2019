@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using aoc2019.Utils;
+﻿using System.Linq;
 using Xunit;
 
 namespace aoc2019
@@ -17,32 +15,14 @@ namespace aoc2019
         public void ComputeResult(int[] program, int[] expected)
         {
             // Arrange
-            var computer = new Day5.Computer(program);
+            var computer = new Day5.IntComputer(program);
 
             // Act
             computer.Compute();
-            var actual = computer.MemoryDump;
+            var actual = computer.Memory;
 
             // Assert
             Assert.Equal(expected, actual);
-        }
-
-        private static int[] LoadProgram(string name)
-        {
-            using (var input = AssetManager.GetAsset(name))
-            {
-                return input.ReadToEnd().Split(',').Select(int.Parse).ToArray();
-            }
-        }
-
-        private static void DumpMemory(string name, int[] memory)
-        {
-            using (var fileStream = AssetManager.OpenAsset(name))
-            using (var output = new StreamWriter(fileStream))
-            {
-                output.WriteLine(string.Join(",", memory));
-                output.Close();
-            }
         }
 
         [Theory]
@@ -55,7 +35,7 @@ namespace aoc2019
         public void ComputeCondition(int[] program, int inputForTrue, int inputForFalse)
         {
             // Arrange
-            var computer = new Day5.Computer(program);
+            var computer = new Day5.IntComputer(program);
 
             const int expectedTrue = 1;
             const int expectedFalse = 0;
@@ -79,7 +59,7 @@ namespace aoc2019
                 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
                 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
             };
-            var computer = new Day5.Computer(program);
+            var computer = new Day5.IntComputer(program);
 
             const int expectedIfBelowEight = 999;
             const int expectedIfEqualsToEight = 1000;
@@ -97,32 +77,10 @@ namespace aoc2019
         }
 
         [Fact]
-        public void ComputeResultFromInput()
-        {
-            // Arrange
-            var program = LoadProgram("Day2_input");
-            program[1] = 12;
-            program[2] = 2;
-
-            var computer = new Day5.Computer(program);
-
-            var expected = 6327510;
-
-            // Act
-            computer.Compute();
-            var actual = computer[0];
-
-            // Assert
-            DumpMemory("Day2_output.5", computer.MemoryDump);
-            Assert.Equal(expected, actual);
-        }
-
-
-        [Fact]
         public void ComputeResultFromInput5()
         {
             // Arrange
-            var computer = new Day5.Computer(LoadProgram("Day5_input"));
+            var computer = new Day5.IntComputer(Day5.IntComputer.LoadProgram("Day5_input"));
 
             var expected = 16489636;
 
@@ -130,7 +88,7 @@ namespace aoc2019
             var actual = computer.Compute(1);
 
             // Assert
-            DumpMemory("Day5_output", computer.MemoryDump);
+            computer.DumpMemory("Day5_output");
             Assert.All(actual.Take(actual.Length - 1), i => Assert.Equal(0, i));
             Assert.Equal(expected, actual[actual.Length - 1]);
         }
@@ -140,23 +98,22 @@ namespace aoc2019
         public void ComputeResultFromInputAdvanced()
         {
             // Arrange
-            var computer = new Day5.Computer(LoadProgram("Day5_input"));
+            var computer = new Day5.IntComputer(Day5.IntComputer.LoadProgram("Day5_input"));
 
             var expected = 9386583;
 
             // Act
-            var actual = computer.Compute(5);
+            var actual = computer.Compute(5)[0];
 
             // Assert
-            DumpMemory("Day5_output.2", computer.MemoryDump);
-            Assert.Equal(expected, actual[0]);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void InputOutput()
         {
             // Arrange
-            var computer = new Day5.Computer(3, 0, 4, 0, 99);
+            var computer = new Day5.IntComputer(3, 0, 4, 0, 99);
             var expected = new[] {15};
 
             // Act

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using aoc2019.Utils;
 
 namespace aoc2019
 {
@@ -32,17 +35,10 @@ namespace aoc2019
             ImmediateMode = 1
         }
 
-        public class Computer
+        public class IntComputer
         {
-            private Queue<int> _input;
-            private int[] _memory;
-            private Queue<int> _output;
-
-            public Computer(params int[] program)
-            {
-                Program = program;
-
-                Instructions = new Dictionary<OpCode, Func<int, int, int>>
+            private readonly IDictionary<OpCode, Func<int, int, IntComputer, int>> _instructions
+                = new Dictionary<OpCode, Func<int, int, IntComputer, int>>
                 {
                     {OpCode.Addition, Addition},
                     {OpCode.Multiplication, Multiplication},
@@ -54,36 +50,52 @@ namespace aoc2019
                     {OpCode.Equals, EqualsOp},
                     {OpCode.Halt, Halt}
                 };
+
+            private ConcurrentQueue<int> _input;
+            private ConcurrentQueue<int> _output;
+
+            public IntComputer(params int[] program)
+            {
+                Program = program;
             }
 
-            private IDictionary<OpCode, Func<int, int, int>> Instructions { get; }
-
-            private int[] Program { get; }
-
-            public int[] MemoryDump => _memory.ToArray();
-
-            public int this[int position] => _memory[position];
+            public int[] Program { get; }
+            public int[] Memory { get; private set; }
 
             public int[] Compute(params int[] input)
             {
-                _memory = Program.ToArray();
+                Memory = Program.ToArray();
 
-                _input = new Queue<int>(input);
-                _output = new Queue<int>();
+                _input = new ConcurrentQueue<int>(input);
+                _output = new ConcurrentQueue<int>();
 
                 var position = 0;
-                while (position < _memory.Length)
+                while (position < Memory.Length)
                 {
-                    var instruction = GetInstruction(position);
-                    position = Instructions[GetOpCode(instruction)](position, instruction);
+                    var instruction = GetInstruction(Memory, position);
+                    position = _instructions[GetOpCode(instruction)](position, instruction, this);
                 }
 
                 return _output.ToArray();
             }
 
-            private int GetInstruction(int position)
+            public void Compute(ConcurrentQueue<int> input, ConcurrentQueue<int> output)
             {
-                return _memory[position];
+                Memory = Program.ToArray();
+                _input = input;
+                _output = output;
+
+                var position = 0;
+                while (position < Memory.Length)
+                {
+                    var instruction = GetInstruction(Memory, position);
+                    position = _instructions[GetOpCode(instruction)](position, instruction, this);
+                }
+            }
+
+            private static int GetInstruction(int[] memory, int position)
+            {
+                return memory[position];
             }
 
             private static OpCode GetOpCode(int instruction)
@@ -91,90 +103,96 @@ namespace aoc2019
                 return (OpCode) (instruction % 100);
             }
 
-            private int Addition(int position, int instruction)
+            private static int Addition(int position, int instruction, IntComputer computer)
             {
-                var (first, second, third) = GetThreeParameters(position, instruction);
+                var (first, second, third) = GetThreeParameters(computer.Memory, position, instruction);
 
-                _memory[third] = second + first;
+                computer.Memory[third] = second + first;
 
                 return position + 4;
             }
 
-            private int Multiplication(int position, int instruction)
+            private static int Multiplication(int position, int instruction, IntComputer computer)
             {
-                var (first, second, third) = GetThreeParameters(position, instruction);
+                var (first, second, third) = GetThreeParameters(computer.Memory, position, instruction);
 
-                _memory[third] = second * first;
+                computer.Memory[third] = second * first;
 
                 return position + 4;
             }
 
-            private int Input(int position, int instruction)
+            private static int Input(int position, int instruction, IntComputer computer)
             {
-                var first = ResolveAddress(GetParameter(position, instruction, Parameter.First));
+                var first = ResolveAddress(computer.Memory, GetParameter(position, instruction, Parameter.First));
 
-                _memory[first] = _input.Dequeue();
+                do
+                {
+                    if (computer._input.TryDequeue(out var value))
+                    {
+                        computer.Memory[first] = value;
+                        return position + 2;
+                    }
+                } while (true);
+            }
+
+            private static int Output(int position, int instruction, IntComputer computer)
+            {
+                var first = ResolveAddress(computer.Memory, GetParameter(position, instruction, Parameter.First));
+
+                computer._output.Enqueue(computer.Memory[first]);
 
                 return position + 2;
             }
 
-            private int Output(int position, int instruction)
+            private static int JumpIfTrue(int position, int instruction, IntComputer computer)
             {
-                var first = ResolveAddress(GetParameter(position, instruction, Parameter.First));
-
-                _output.Enqueue(_memory[first]);
-
-                return position + 2;
-            }
-
-            private int JumpIfTrue(int position, int instruction)
-            {
-                var (first, second) = GetTwoParameters(position, instruction);
+                var (first, second) = GetTwoParameters(computer.Memory, position, instruction);
 
                 return first != 0 ? second : position + 3;
             }
 
-            private int JumpIfFalse(int position, int instruction)
+            private static int JumpIfFalse(int position, int instruction, IntComputer computer)
             {
-                var (first, second) = GetTwoParameters(position, instruction);
+                var (first, second) = GetTwoParameters(computer.Memory, position, instruction);
 
                 return first == 0 ? second : position + 3;
             }
 
-            private int LessThan(int position, int instruction)
+            private static int LessThan(int position, int instruction, IntComputer computer)
             {
-                var (first, second, third) = GetThreeParameters(position, instruction);
+                var (first, second, third) = GetThreeParameters(computer.Memory, position, instruction);
 
-                _memory[third] = second > first ? 1 : 0;
+                computer.Memory[third] = second > first ? 1 : 0;
 
                 return position + 4;
             }
 
-            private int EqualsOp(int position, int instruction)
+            private static int EqualsOp(int position, int instruction, IntComputer computer)
             {
-                var (first, second, third) = GetThreeParameters(position, instruction);
+                var (first, second, third) = GetThreeParameters(computer.Memory, position, instruction);
 
-                _memory[third] = second == first ? 1 : 0;
+                computer.Memory[third] = second == first ? 1 : 0;
 
                 return position + 4;
             }
 
-            private int Halt(int position, int instruction)
+            private static int Halt(int position, int instruction, IntComputer computer)
             {
-                return _memory.Length;
+                return computer.Memory.Length;
             }
 
-            private (int first, int second) GetTwoParameters(int position, int instruction)
+            private static (int first, int second) GetTwoParameters(int[] memory, int position, int instruction)
             {
-                return (Resolve(GetParameter(position, instruction, Parameter.First)),
-                    Resolve(GetParameter(position, instruction, Parameter.Second)));
+                return (Resolve(memory, GetParameter(position, instruction, Parameter.First)),
+                    Resolve(memory, GetParameter(position, instruction, Parameter.Second)));
             }
 
-            private (int first, int second, int third) GetThreeParameters(int position, int instruction)
+            private static (int first, int second, int third) GetThreeParameters(int[] memory, int position,
+                int instruction)
             {
-                return (Resolve(GetParameter(position, instruction, Parameter.First)),
-                    Resolve(GetParameter(position, instruction, Parameter.Second)),
-                    ResolveAddress(GetParameter(position, instruction, Parameter.Third)));
+                return (Resolve(memory, GetParameter(position, instruction, Parameter.First)),
+                    Resolve(memory, GetParameter(position, instruction, Parameter.Second)),
+                    ResolveAddress(memory, GetParameter(position, instruction, Parameter.Third)));
             }
 
             private static (int position, ParameterMode mode) GetParameter(int position, int instruction,
@@ -193,18 +211,36 @@ namespace aoc2019
                 return (ParameterMode) (instruction / (int) Math.Pow(10, (int) parameter + 1) % 10);
             }
 
-            private int Resolve((int position, ParameterMode mode) parameter)
+            private static int Resolve(int[] memory, (int position, ParameterMode mode) parameter)
             {
-                return _memory[ResolveAddress(parameter)];
+                return memory[ResolveAddress(memory, parameter)];
             }
 
-            private int ResolveAddress((int position, ParameterMode mode) parameter)
+            private static int ResolveAddress(int[] memory, (int position, ParameterMode mode) parameter)
             {
                 var (position, mode) = parameter;
 
                 return mode == ParameterMode.ImmediateMode
                     ? position
-                    : _memory[position];
+                    : memory[position];
+            }
+
+            public static int[] LoadProgram(string name)
+            {
+                using (var input = AssetManager.GetAsset(name))
+                {
+                    return input.ReadToEnd().Split(',').Select(Int32.Parse).ToArray();
+                }
+            }
+
+            public void DumpMemory(string name)
+            {
+                using (var fileStream = AssetManager.OpenAsset(name))
+                using (var output = new StreamWriter(fileStream))
+                {
+                    output.WriteLine(String.Join(",", Memory));
+                    output.Close();
+                }
             }
         }
     }
