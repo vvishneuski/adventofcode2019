@@ -69,9 +69,12 @@
         <Compile Include="Day6TestSuite.cs" />
         <Compile Include="Day7TestSuite.cs" />
         <Compile Include="Day7TestSuite2.cs"/>
+        <Compile Include="Day8.cs"/>
+        <Compile Include="Day8TestSuite.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Utils\AssetManager.cs" />
         <Compile Include="Utils\Recurrence.cs" />
+        <Compile Include="Utils\Split.cs"/>
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config" />
@@ -87,6 +90,7 @@
         <Content Include="Assets\Day5_output" />
         <Content Include="Assets\Day6_input" />
         <Content Include="Assets\Day7_input" />
+        <Content Include="Assets\Day8_input"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
