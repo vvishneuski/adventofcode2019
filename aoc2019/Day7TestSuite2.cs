@@ -17,20 +17,20 @@ namespace aoc2019
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public static TheoryData<int, int[], int[]> GetThrusterSignalData
-            => new TheoryData<int, int[], int[]>
+        public static TheoryData<long, long[], long[]> GetThrusterSignalData
+            => new TheoryData<long, long[], long[]>
             {
                 {
-                    139629729, new[] {9, 8, 7, 6, 5}, new[]
+                    139629729, new[] {9L, 8, 7, 6, 5}, new[]
                     {
-                        3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26,
+                        3L, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26,
                         27, 4, 27, 1001, 28, -1, 28, 1005, 28, 6, 99, 0, 0, 5
                     }
                 },
                 {
-                    18216, new[] {9, 7, 8, 5, 6}, new[]
+                    18216, new[] {9L, 7, 8, 5, 6}, new[]
                     {
-                        3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
+                        3L, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
                         -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
                         53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10
                     }
@@ -39,7 +39,7 @@ namespace aoc2019
 
         [Theory]
         [MemberData(nameof(GetThrusterSignalData))]
-        public void GetThrusterSignal(int expected, int[] expectedSettings, int[] program)
+        public void GetThrusterSignal(long expected, long[] expectedSettings, long[] program)
         {
             // Act
             var actual = CalculateMaxThrusterSignal(program);
@@ -51,7 +51,7 @@ namespace aoc2019
             Assert.Equal(expectedSettings, actual.settings);
         }
 
-        private (int signal, int[] settings) CalculateMaxThrusterSignal(int[] program)
+        private (long signal, long[] settings) CalculateMaxThrusterSignal(long[] program)
         {
             var enumerateSettings = EnumerateSettings(5, 9);
             var signals =
@@ -60,24 +60,24 @@ namespace aoc2019
             return orderedEnumerable.Last();
         }
 
-        private static int CalculateThrusterSignal(int[] program, int[] phaseSettings)
+        private static long CalculateThrusterSignal(long[] program, long[] phaseSettings)
         {
-            var outputE = new ConcurrentQueue<int>(new[] {phaseSettings[0], 0});
+            var outputE = new ConcurrentQueue<long>(new[] {phaseSettings[0], 0});
 
             var inputA = outputE;
-            var outputA = new ConcurrentQueue<int>(new[] {phaseSettings[1]});
+            var outputA = new ConcurrentQueue<long>(new[] {phaseSettings[1]});
             var computerA = Task.Run(() => new Day5.IntComputer(program).Compute(inputA, outputA));
 
             var inputB = outputA;
-            var outputB = new ConcurrentQueue<int>(new[] {phaseSettings[2]});
+            var outputB = new ConcurrentQueue<long>(new[] {phaseSettings[2]});
             var computerB = Task.Run(() => new Day5.IntComputer(program).Compute(inputB, outputB));
 
             var inputC = outputB;
-            var outputC = new ConcurrentQueue<int>(new[] {phaseSettings[3]});
+            var outputC = new ConcurrentQueue<long>(new[] {phaseSettings[3]});
             var computerC = Task.Run(() => new Day5.IntComputer(program).Compute(inputC, outputC));
 
             var inputD = outputC;
-            var outputD = new ConcurrentQueue<int>(new[] {phaseSettings[4]});
+            var outputD = new ConcurrentQueue<long>(new[] {phaseSettings[4]});
             var computerD = Task.Run(() => new Day5.IntComputer(program).Compute(inputD, outputD));
 
             var inputE = outputD;
@@ -89,7 +89,7 @@ namespace aoc2019
             return result;
         }
 
-        private static IEnumerable<int[]> EnumerateSettings(int minValue, int maxValue)
+        private static IEnumerable<long[]> EnumerateSettings(long minValue, long maxValue)
         {
             for (var a = minValue; a <= maxValue; a++)
             for (var b = minValue; b <= maxValue; b++)

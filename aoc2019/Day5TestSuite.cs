@@ -6,33 +6,33 @@ namespace aoc2019
     public class Day5TestSuite
     {
         [Theory]
-        [InlineData(new[] {1, 0, 0, 0, 99}, new[] {2, 0, 0, 0, 99})]
-        [InlineData(new[] {2, 3, 0, 3, 99}, new[] {2, 3, 0, 6, 99})]
-        [InlineData(new[] {2, 4, 4, 5, 99, 0}, new[] {2, 4, 4, 5, 99, 9801})]
-        [InlineData(new[] {1, 1, 1, 4, 99, 5, 6, 0, 99}, new[] {30, 1, 1, 4, 2, 5, 6, 0, 99})]
-        [InlineData(new[] {1101, 100, -1, 4, 0}, new[] {1101, 100, -1, 4, 99})]
-        [InlineData(new[] {1002, 4, 3, 4, 33}, new[] {1002, 4, 3, 4, 99})]
-        public void ComputeResult(int[] program, int[] expected)
+        [InlineData(new[] {1L, 0, 0, 0, 99},                new[] {2L, 0, 0, 0, 99})]
+        [InlineData(new[] {2L, 3, 0, 3, 99},                new[] {2L, 3, 0, 6, 99})]
+        [InlineData(new[] {2L, 4, 4, 5, 99, 0},             new[] {2L, 4, 4, 5, 99, 9801})]
+        [InlineData(new[] {1L, 1, 1, 4, 99, 5, 6, 0, 99},   new[] {30L, 1, 1, 4, 2, 5, 6, 0, 99})]
+        [InlineData(new[] {1101L, 100, -1, 4, 0},           new[] {1101L, 100, -1, 4, 99})]
+        [InlineData(new[] {1002L, 4, 3, 4, 33},             new[] {1002L, 4, 3, 4, 99})]
+        public void ComputeResult(long[] program, long[] expected)
         {
             // Arrange
             var computer = new Day5.IntComputer(program);
 
             // Act
             computer.Compute();
-            var actual = computer.Memory;
+            var actual = computer.Memory.Select(cell => cell.Value);
 
             // Assert
             Assert.Equal(expected, actual);
         }
 
         [Theory]
-        [InlineData(new[] {3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8}, 8, 9)]
-        [InlineData(new[] {3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8}, 7, 8)]
-        [InlineData(new[] {3, 3, 1108, -1, 8, 3, 4, 3, 99}, 8, 7)]
-        [InlineData(new[] {3, 3, 1107, -1, 8, 3, 4, 3, 99}, 3, 9)]
-        [InlineData(new[] {3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, 8, 0)]
-        [InlineData(new[] {3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}, 3, 0)]
-        public void ComputeCondition(int[] program, int inputForTrue, int inputForFalse)
+        [InlineData(new[] {3L, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8}, 8, 9)]
+        [InlineData(new[] {3L, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8}, 7, 8)]
+        [InlineData(new[] {3L, 3, 1108, -1, 8, 3, 4, 3, 99}, 8, 7)]
+        [InlineData(new[] {3L, 3, 1107, -1, 8, 3, 4, 3, 99}, 3, 9)]
+        [InlineData(new[] {3L, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, 8, 0)]
+        [InlineData(new[] {3L, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}, 3, 0)]
+        public void ComputeCondition(long[] program, long inputForTrue, long inputForFalse)
         {
             // Arrange
             var computer = new Day5.IntComputer(program);
@@ -53,7 +53,7 @@ namespace aoc2019
         public void ComputeConditionAdvanced()
         {
             // Arrange
-            var program = new[]
+            var program = new long[]
             {
                 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
                 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
@@ -114,7 +114,7 @@ namespace aoc2019
         {
             // Arrange
             var computer = new Day5.IntComputer(3, 0, 4, 0, 99);
-            var expected = new[] {15};
+            var expected = new long[] {15};
 
             // Act
             var actual = computer.Compute(expected);

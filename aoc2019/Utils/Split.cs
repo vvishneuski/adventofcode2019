@@ -15,29 +15,6 @@ namespace aoc2019.Utils
             }
         }
 
-        public static IEnumerable<string> SplitUp(this string source, int length)
-        {
-            for (var start = 0; start < source.Length; start += length)
-            {
-                yield return source.Substring(start, length);
-            }
-        }
-
-        [Fact]
-        public static void SplitUpStringTest()
-        {
-            // Arrange
-            var source = "123456789012";
-
-            var expected3 = "789";
-
-            // Act
-            var actual3 = source.SplitUp(3).ToList()[2];
-
-            // Assert
-            Assert.Equal(expected3, actual3);
-        }
-
         [Fact]
         public static void SplitUpTest()
         {

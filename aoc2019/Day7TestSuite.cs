@@ -15,21 +15,21 @@ namespace aoc2019
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public static TheoryData<int, int[], int[]> GetThrusterSignalData
-            => new TheoryData<int, int[], int[]>
+        public static TheoryData<long, long[], long[]> GetThrusterSignalData
+            => new TheoryData<long, long[], long[]>
             {
-                {43210, new[] {4, 3, 2, 1, 0}, new[] {3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0}},
+                {43210, new[] {4L, 3, 2, 1, 0}, new[] {3L, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0}},
                 {
-                    54321, new[] {0, 1, 2, 3, 4}, new[]
+                    54321, new[] {0L, 1, 2, 3, 4}, new[]
                     {
-                        3, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23,
+                        3L, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23,
                         101, 5, 23, 23, 1, 24, 23, 23, 4, 23, 99, 0, 0
                     }
                 },
                 {
-                    65210, new[] {1, 0, 4, 3, 2}, new[]
+                    65210, new[] {1L, 0, 4, 3, 2}, new[]
                     {
-                        3, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33,
+                        3L, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33,
                         1002, 33, 7, 33, 1, 33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0
                     }
                 },
@@ -37,7 +37,7 @@ namespace aoc2019
 
         [Theory]
         [MemberData(nameof(GetThrusterSignalData))]
-        public void GetThrusterSignal(int expected, int[] expectedSettings, int[] program)
+        public void GetThrusterSignal(long expected, long[] expectedSettings, long[] program)
         {
             // Arrange
             var computer = new Day5.IntComputer(program);
@@ -52,7 +52,7 @@ namespace aoc2019
             Assert.Equal(expectedSettings, actual.settings);
         }
 
-        private (int signal, int[] settings) CalculateMaxThrusterSignal(Day5.IntComputer computer)
+        private (long signal, long[] settings) CalculateMaxThrusterSignal(Day5.IntComputer computer)
         {
             var enumerateSettings = EnumerateSettings(0, 4);
             var signals = enumerateSettings.Select(settings =>
@@ -61,7 +61,7 @@ namespace aoc2019
             return orderedEnumerable.Last();
         }
 
-        private static int CalculateThrusterSignal(Day5.IntComputer computer, int[] phaseSettings)
+        private static long CalculateThrusterSignal(Day5.IntComputer computer, long[] phaseSettings)
         {
             var outputA = computer.Compute(phaseSettings[0], 0);
             var outputB = computer.Compute(phaseSettings[1], outputA[0]);
@@ -71,7 +71,7 @@ namespace aoc2019
             return outputE[0];
         }
 
-        private static IEnumerable<int[]> EnumerateSettings(int minValue, int maxValue)
+        private static IEnumerable<long[]> EnumerateSettings(long minValue, long maxValue)
         {
             for (var a = minValue; a <= maxValue; a++)
             for (var b = minValue; b <= maxValue; b++)
